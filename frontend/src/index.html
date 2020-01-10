@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Simple React Sticky-Notes</title>
+    <!-- Compiled and minified Materialize CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+    <!--build:css css/main.min.css-->
+    <link rel="stylesheet" href="css/main.css">
+    <!--endbuild-->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <!-- Compiled and minified Materialize JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+    <!-- Minified React.js JavaScript -->
+    <!--build:js js/main.min.js -->
+    <script src="js/react.min.js"></script>
+    <script src="js/react-dom.min.js"></script>
+    <script src="js/browser.min.js"></script>
+    <!-- endbuild -->
+  </head>
+  <body class="blue-grey lighten-5">
+
+      <header class="row blue-grey darken-4">
+        <div class="col s12 header-content">
+          <img src="img/logo.svg" alt="React logo">
+          <h1>Simple React.js Sticky-Notes</h1>
+        </div>
+      </header>
+
+      <main>
+        <div id="content"></div>
+      </main>
+
+
+      <script type="text/babel">
+
+        // Individual Notes
+        var Note = React.createClass({
+
+          // get initial state of form
+          getInitialState: function() {
+            return {editing: true};
+          },
+
+          // states for buttons
+          edit: function() {
+            this.setState({editing: true});
+          },
+          remove: function() {
+            this.props.deleteFromBoard(this.props.index);
+          },
+          save: function() {
+            this.props.updateNoteText(this.refs.newText.value, this.props.index)
+            this.setState({editing: false});
+          },
+
+          // render different fields based on state
+          renderNormal: function() {
+            return (
+              <div className="col s12 m6">
+                <div className="noteContainer card blue-grey darken-1">
+                  <div className="noteText card-content white-text">
+                    <span className="card-title">{this.props.children}</span>
+                  </div>
+                  <div className="card-action">
+                    <button onClick={this.edit} className="waves-effect waves-light btn">Edit</button>
+                    <button onClick={this.remove} className="waves-effect waves-light btn red darken-4">Remove</button>
+                  </div>
+                </div>
+              </div>
+            );
+          },
+
+          renderForm: function() {
+            return (
+              <div className="col s12 m6">
+                <div className="noteContainer card blue-grey darken-1">
+                  <div className="noteText card-content white-text">
+                    <div class="input-field col s6">
+                      <label for="textarea1">Note</label>
+                      <textarea id="textarea1" className="materialize-textarea" ref="newText" defaultValue={this.props.children}></textarea>
+                    </div>
+                  </div>
+                  <div className="card-action">
+                    <button onClick={this.save} className="waves-effect waves-light btn">Save</button>
+                    <button onClick={this.remove} className="waves-effect waves-light btn red darken-4">Remove</button>
+                  </div>
+                </div>
+              </div>
+            );
+          },
+
+          // if in editing mode, render form. if not in editing mode, render normal
+          render: function() {
+            if(this.state.editing) {
+              return this.renderForm();
+            } else {
+              return this.renderNormal();
+            }
+          }
+
+        });
+
+        // Container for the Notes
+        var Board = React.createClass({
+
+          getInitialState: function() {
+            return {
+              notes: []
+            };
+          },
+
+          add: function(text) {
+            // store notes array into variable
+            var arr = this.state.notes;
+            // push new note into array
+            arr.push(text);
+            // update array
+            this.setState({notes: arr});
+          },
+
+          removeNote: function(i) {
+            // store notes array into variable
+            var arr = this.state.notes;
+            // splice out item passed in
+            arr.splice(i, 1);
+            // set new array equal to the updated array
+            this.setState({notes: arr});
+          },
+
+          updateNote: function(newText, i) {
+            // store notes array into variable
+            var arr = this.state.notes;
+            // get reference to that specific array item
+            arr[i] = newText;
+            // set equal to the new text that the user typed in
+            this.setState({notes: arr});
+          },
+
+          eachNote: function(item, i) {
+            return (
+              <Note key={i} index={i} updateNoteText={this.updateNote} deleteFromBoard={this.removeNote}>
+                {item}
+              </Note>
+            );
+          },
+
+          render: function() {
+            return (
+              <div className="row">
+                <div className="col s12 app-description">
+                  <p className="flow-text">This is a simple sticky-note app built with React.</p>
+                  <p className="flow-text">The app features basic React.js functionality, including Components, Props, Event Handling, and States.</p>
+                  <p className="flow-text">Users can Add, Save, Edit/Update, and Remove notes.</p>
+                </div>
+                <div className="col s12 add-note-container">
+                  <button onClick={this.add.bind(null, "Add a new note!")} className="waves-effect waves-light btn-large new-note-btn">Add New Note</button>
+                  <div className="board">
+                    {this.state.notes.map(this.eachNote)}
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+        });
+
+        // render to DOM
+        ReactDOM.render(<Board />, document.getElementById('content'));
+
+      </script>
+
+  </body>
+</html>
